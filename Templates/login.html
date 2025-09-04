@@ -1,0 +1,22 @@
+{% extends "base.html"%}
+
+{% block title%}Cadastro e Login{%endblock%}
+
+{% block head%}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/logincss.css') }}">
+{%endblock%}
+
+{%block content%}
+<section class="formulario">
+        <h2>Login</h2>
+        <form method="post" action="{{url_for("loginUser")}}">
+            <label for="login-user">E-mail ou Username:</label>
+            <input id="login-user" name="login_user" type="text" required />
+
+            <label for="login-password">Senha:</label>
+            <input id="login-password" name="password" type="password" required />
+
+            <button type="submit">Entrar</button>
+        </form>
+</section>
+{%endblock%}
