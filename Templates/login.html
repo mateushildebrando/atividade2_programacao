@@ -1,22 +1,22 @@
-{% extends "base.html"%}
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/mycss.css') }}">
+        <meta charset="UTF-8">
+        <title>Cadastro</title>
+    </head>
+    <body>
+        <section class="formulario">
+            <h2>Login</h2>
+            <form method="post">
+                <label for="login-user">Usuário:</label>
+                <input id="login-user" name="login_user" type="text" required />
 
-{% block title%}Cadastro e Login{%endblock%}
+                <label for="login-password">Senha:</label>
+                <input id="login-password" name="password" type="password" required />
 
-{% block head%}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/logincss.css') }}">
-{%endblock%}
-
-{%block content%}
-<section class="formulario">
-        <h2>Login</h2>
-        <form method="post" action="{{url_for("loginUser")}}">
-            <label for="login-user">E-mail ou Username:</label>
-            <input id="login-user" name="login_user" type="text" required />
-
-            <label for="login-password">Senha:</label>
-            <input id="login-password" name="password" type="password" required />
-
-            <button type="submit">Entrar</button>
-        </form>
-</section>
-{%endblock%}
+                <button type="submit">Logar</button>
+            </form>
+        </section>
+    </body>
+</html>

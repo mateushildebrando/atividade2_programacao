@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/mycss.css') }}">
+        <meta charset="UTF-8">
+        <title>Cadastro</title>
+    </head> 
+    <body>
+        <section class="formulario">
+            <h2>Cadastro</h2>
+            <form method="post" action="{{url_for("novo_usuario") }}">
+                <label for="nome">Nome:</label>
+                <input id="nome" name="first_name" type="text" required />
+                
+                
+                <label for="email">E-mail:</label>
+                <input id="email" name="email" type="email" required />
+                
+                <label for="username">Usuário:</label>
+                <input id="username" name="username" type="text" required />
+                
+                <label for="password">Senha:</label>
+                <input id="password" name="password" type="password" pattern=".{8,}" required />
+                
+                <button type="submit">Cadastrar</button>
+            </form>
+        </section>
+    </body>
+</html>       
