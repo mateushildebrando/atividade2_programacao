@@ -23,7 +23,7 @@ def cadastro():
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
 
-cursor.execute ("SELECT * FROM usuario WHERE username_usuario = %s OR email usuario OR email_usuario = %s")
+cursor.execute ("SELECT * FROM usuario WHERE username_usuario = %s OR email usuario OR email_usuario = %s", (username, email))
 if cursor.fetchone():
     flash("Nome de usuário ou email já cadastrado.", "erro")
     return redirect(url_for('cadastro'))
