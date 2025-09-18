@@ -61,3 +61,10 @@ def login():
             if not usuario['conta_livre']:
                 flash("Esta conta está desativada.", "Erro")
                 return redirect(url_for('login'))
+            session['usuario_id'] = usuario['cod_usuario']
+            session['usuario_nome'] = usuario['nome_usuario']
+            return redirect(url_for('login'))
+        else:
+            flash("Usuário ou senha inválidos.", "erro")
+            return redirect(url_for('login'))
+    return render_template('login.html')
