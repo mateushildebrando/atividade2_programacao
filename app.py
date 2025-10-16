@@ -366,99 +366,19 @@ def excluir_pvp(cod):
         flash(f"Não foi possível excluir o PVP. Verifique se ele não está em uso por uma categoria. Erro: {err}", "erro")
     return redirect(url_for('admin.pvps'))
 
-## cadastro
-@admin_bp.route('/pvps/cadastrar', methods=['GET', 'POST'])
+# --- CRUD para categoria ---
+@admin_bp.route('/categorias')
 @admin_required
-def cadastrar_pvp():
-    """ Rota para cadastrar um novo PVP. """
-    if request.method == 'POST':
-        nome = request.form['nome_pvp']
-        percentual = request.form['percentual']
-        tipo = request.form['tipo_pvp']
-        
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-
-        # Validação para impedir o cadastro de mais de um PVP Global ativo.
-        if tipo == 'global':
-            cursor.execute("SELECT cod_pvp FROM pvp WHERE tipo_pvp = 'global' AND ativo = TRUE")
-            if cursor.fetchone():
-                flash("Já existe um PVP Global ativo. Inative o PVP existente antes de cadastrar um novo.", "erro")
-                cursor.close()
-                conn.close()
-                return redirect(url_for('admin.cadastrar_pvp'))
-
-        query = "INSERT INTO pvp (nome_pvp, percentual, tipo_pvp) VALUES (%s, %s, %s)"
-        cursor.execute(query, (nome, percentual, tipo))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash("PVP cadastrado com sucesso!", "sucesso")
-        return redirect(url_for('admin.pvps'))
-
-    return render_template('cadastrar_pvp.html')
-
-@admin_bp.route('/pvps/editar/<int:cod>', methods=['GET', 'POST'])
-@admin_required
-def editar_pvp(cod):
-    """ Rota para editar um PVP existente. """
+def categorias():
+    """ Rota para listar todas as categorias. """
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-
-    if request.method == 'POST':
-        nome = request.form['nome_pvp']
-        percentual = request.form['percentual']
-        tipo = request.form['tipo_pvp']
-        ativo = 'ativo' in request.form
-        
-        # Validação para impedir que mais de um PVP Global seja ativado.
-        if tipo == 'global' and ativo:
-            # Procura por outro PVP global ativo que não seja o que está sendo editado.
-            cursor.execute("SELECT cod_pvp FROM pvp WHERE tipo_pvp = 'global' AND ativo = TRUE AND cod_pvp != %s", (cod,))
-            if cursor.fetchone():
-                flash("Já existe outro PVP Global ativo. Inative o PVP existente antes de ativar este.", "erro")
-                cursor.close()
-                conn.close()
-                return redirect(url_for('admin.editar_pvp', cod=cod))
-
-        query = """
-            UPDATE pvp SET nome_pvp = %s, percentual = %s, tipo_pvp = %s, ativo = %s
-            WHERE cod_pvp = %s
-        """
-        cursor.execute(query, (nome, percentual, tipo, ativo, cod))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash("PVP atualizado com sucesso!", "sucesso")
-        return redirect(url_for('admin.pvps'))
-
-    # Se GET, busca dados do PVP para preencher o formulário.
-    cursor.execute("SELECT * FROM pvp WHERE cod_pvp = %s", (cod,))
-    pvp = cursor.fetchone()
-    if not pvp:
-        flash("PVP não encontrado.", "erro")
-        return redirect(url_for('admin.pvps'))
-    
+    cursor.execute("SELECT * FROM categoria_produto ORDER BY nome_categoria ASC")
+    lista_categorias = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('editar_pvp.html', pvp=pvp)
+    return render_template('categorias.html', categorias=lista_categorias)
 
-@admin_bp.route('/pvps/excluir/<int:cod>', methods=['POST'])
-@admin_required
-def excluir_pvp(cod):
-    """ Rota para excluir um PVP. """
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM pvp WHERE cod_pvp = %s", (cod,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash("PVP excluído com sucesso!", "sucesso")
-    except mysql.connector.Error as err:
-        # Captura erro se o PVP estiver em uso por uma categoria (chave estrangeira).
-        flash(f"Não foi possível excluir o PVP. Verifique se ele não está em uso por uma categoria. Erro: {err}", "erro")
-    return redirect(url_for('admin.pvps'))
 
 
 # =====================================================================
