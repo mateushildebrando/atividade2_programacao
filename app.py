@@ -379,6 +379,62 @@ def categorias():
     conn.close()
     return render_template('categorias.html', categorias=lista_categorias)
 
+@admin_bp.route('/categorias/cadastrar', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_categoria():
+    """ Rota para cadastrar uma nova Categoria. """
+    if request.method == 'POST':
+        nome = request.form['nome_categoria']
+        pvp = request.form['pvp_categoria']
+        descricao = request.form['descricao_categoria']
+        
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = "INSERT INTO categoria_produto (nome_categoria, pvp_categoria, descricao_categoria) VALUES (%s, %s, %s)"
+        cursor.execute(query, (nome, pvp, descricao))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Categoria cadastrado com sucesso!", "sucesso")
+        return redirect(url_for('admin.categorias'))
+
+    return render_template('cadastrar_categoria.html')
+
+@admin_bp.route('/categorias/editar/<int:cod>', methods=['GET', 'POST'])
+@admin_required
+def editar_categoria(cod):
+    """ Rota para editar uma Categoria existente. """
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        nome = request.form['nome_categoria']
+        pvp = request.form['pvp_categoria']
+        descricao = request.form['descricao_categoria']
+        
+        query = """
+            UPDATE categoria_produto SET nome_categoria = %s, pvp_categoria = %s, descricao_categoria = %s, WHERE cod_categoria = %s  
+        """
+        cursor.execute(query, (nome, pvp, descricao, cod))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Categoria atualizado com sucesso!", "sucesso")
+        return redirect(url_for('admin.categorias'))
+
+    # Se GET, busca dados do Categoria para preencher o formulário.
+    cursor.execute("SELECT * FROM categoria_produto WHERE cod_categoria = %s", (cod,))
+    categoria = cursor.fetchone()
+    if not categoria:
+        flash("Categoria não encontrado.", "erro")
+        return redirect(url_for('admin.categorias'))
+    
+    cursor.close()
+    conn.close()
+    return render_template('editar_categoria.html', categoria=categoria)
+
+
 
 
 # =====================================================================
