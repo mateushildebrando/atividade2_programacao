@@ -434,6 +434,23 @@ def editar_categoria(cod):
     conn.close()
     return render_template('editar_categoria.html', categoria=categoria)
 
+@admin_bp.route('/categorias/excluir/<int:cod>', methods=['POST'])
+@admin_required
+def excluir_categoria(cod):
+    """ Rota para excluir uma Categoria. """
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM categoria_produto WHERE cod_categoria = %s", (cod,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Categoria excluída com sucesso!", "sucesso")
+    except mysql.connector.Error as err:
+        # Captura erro se o PVP estiver em uso por uma categoria (chave estrangeira).
+        flash(f"Não foi possível excluir a Categoria. Erro: {err}", "erro")
+    return redirect(url_for('admin.categorias'))
+
 
 
 
