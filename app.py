@@ -451,6 +451,85 @@ def excluir_categoria(cod):
         flash(f"Não foi possível excluir a Categoria. Erro: {err}", "erro")
     return redirect(url_for('admin.categorias'))
 
+# CRUD medida
+
+@admin_bp.route('/medidas')
+@admin_required
+def medidas():
+    """ Rota para listar todas as medidas. """
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM unidade_medida ORDER BY nome_unidade ASC")
+    lista_medidas = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('medidas.html', medidas=lista_medidas)
+
+@admin_bp.route('/medidas/cadastrar', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_medida():
+    """ Rota para cadastrar uma nova medida. """
+    if request.method == 'POST':
+        nome = request.form['nome_unidade']
+        sigla = request.form['sigla_unidade']
+        
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = "INSERT INTO unidade_medida (nome_unidade, sigla_unidade) VALUES (%s, %s)"
+        cursor.execute(query, (nome, sigla))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Unidade de medida cadastrada com sucesso!", "sucesso")
+        return redirect(url_for('admin.medidas'))
+
+    return render_template('cadastrar_medida.html')
+
+@admin_bp.route('/medidas/editar/<int:cod>', methods=['GET', 'POST'])
+@admin_required
+def editar_medida(cod):
+    """ Rota para editar uma medida. """
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        nome = request.form['nome_unidade']
+        sigla = request.form['sigla_unidade']
+        
+        query = "UPDATE unidade_medida SET nome_unidade = %s, sigla_unidade = %s"
+        cursor.execute(query, (nome, sigla, cod))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Medida atualizada com sucesso!", "sucesso")
+        return redirect(url_for('admin.medidas'))
+
+    # Se GET, busca dados da medida para preencher o formulário.
+    cursor.execute("SELECT * FROM unidade_medida WHERE cod_unidade = %s", (cod,))
+    medida = cursor.fetchone()
+    if not medida:
+        flash("Medida não encontrada.", "erro")
+        return redirect(url_for('admin.medidas'))
+    
+    cursor.close()
+    conn.close()
+    return render_template('editar_medida.html', medida=medida)
+
+@admin_bp.route('/medidas/excluir/<int:cod>', methods=['POST'])
+@admin_required
+def excluir_medida(cod):
+    """ Rota para excluir uma medida. """
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM unidade_medida WHERE cod_unidade = %s", (cod,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash("Medida excluída com sucesso!", "sucesso")
+    
+    return redirect(url_for('admin.medidas'))
 
 
 
