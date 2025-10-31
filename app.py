@@ -373,7 +373,7 @@ def categorias():
     """ Rota para listar todas as categorias. """
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM categoria_produto ORDER BY nome_categoria ASC")
+    cursor.execute("SELECT c.cod_categoria, c.nome_categoria, p.percentual, c.descricao_categoria FROM categoria_produto AS c LEFT JOIN pvp AS p ON c.pvp_categoria = p.cod_pvp ORDER BY c.nome_categoria ASC")
     lista_categorias = cursor.fetchall()
     cursor.close()
     conn.close()
